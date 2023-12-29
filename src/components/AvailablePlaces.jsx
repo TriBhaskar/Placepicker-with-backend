@@ -1,13 +1,29 @@
+/* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
 import Places from "./Places.jsx";
 import Error from "./Error.jsx";
 import { sortPlacesByDistance } from "../loc.js";
 import fetchAvailablesPlaces from "../http.js";
+import useFetch from "../hooks/useFetch.jsx";
+
+// navigator.geolocation.getCurrentPosition((position) => {
+//   console.log(position);
+//   const sortedPlaces = sortPlacesByDistance(
+//     places,
+//     position.coords.latitude,
+//     position.coords.longitude
+//   );
+//   setAvailablePlaces(sortedPlaces);
+//   setIsFetching(false);
+// });
 
 export default function AvailablePlaces({ onSelectPlace }) {
-  const [isFetching, setIsFetching] = useState(false);
-  const [availablePlaces, setAvailablePlaces] = useState([]);
-  const [error, setError] = useState();
+  const {
+    isFetching,
+    error,
+    fetchedData: availablePlaces,
+    setFetchedData: setAvailablePlaces,
+  } = useFetch(fetchAvailablesPlaces, []);
 
   //fetch request using .then() syntax
   // useEffect(() => {
@@ -40,32 +56,6 @@ export default function AvailablePlaces({ onSelectPlace }) {
   // }, []);
 
   //how to handle errors with fetch requests in react
-
-  useEffect(() => {
-    async function fetchPlaces() {
-      setIsFetching(true);
-      try {
-        const places = await fetchAvailablesPlaces();
-        navigator.geolocation.getCurrentPosition((position) => {
-          console.log(position);
-          const sortedPlaces = sortPlacesByDistance(
-            places,
-            position.coords.latitude,
-            position.coords.longitude
-          );
-          setAvailablePlaces(sortedPlaces);
-          setIsFetching(false);
-        });
-      } catch (error) {
-        setError({
-          message:
-            error.message || "could not fethc places something went wrong!",
-        });
-        setIsFetching(false);
-      }
-    }
-    fetchPlaces();
-  }, []);
 
   if (error) {
     return <Error title="An error occurred!" message={error.message} />;
